@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:weather_app/utils/session_manager.dart';
-import 'package:weather_app/view/screen/home/home_screen.dart';
+import 'utils/session_manager.dart';
+import 'utils/app_router.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await GetStorage.init();
   SessionManager.init();
-
-  runApp(ProviderScope(child:  MyApp()));
+  runApp(ProviderScope(child: const MyApp()));
 }
-
-
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -23,7 +23,9 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
+
+
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
@@ -36,28 +38,33 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
     WidgetsBinding.instance.removeObserver(this);
   }
 
-
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
       designSize: const Size(430, 932),
       minTextAdapt: true,
       splitScreenMode: true,
-      child: MediaQuery(
-        data: MediaQuery.of(context,).copyWith(textScaler: const TextScaler.linear(1)),
-        child: MaterialApp(
-          theme: ThemeData(
-            scaffoldBackgroundColor: Colors.white,
-            appBarTheme: AppBarTheme(color: Colors.white)
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(
+            context,
+          ).copyWith(textScaler: const TextScaler.linear(1)),
+          child: MaterialApp.router(
+            routerConfig: AppRouter.router,
+            builder: FToastBuilder(),
+            debugShowCheckedModeBanner: false,
+            theme: ThemeData(
+              textSelectionTheme: TextSelectionThemeData(
+                cursorColor: Colors.black,
+                selectionHandleColor: Colors.black,
+                selectionColor: Colors.black38,
+              ),
+            ),
           ),
-          debugShowCheckedModeBanner: false,
-          home: HomeScreen(),
-        ),
-      ),
+        );
+      },
     );
   }
-
-
 
   bool _isBackgrounded = false;
 
@@ -78,16 +85,3 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
     runApp(const MyApp());
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
